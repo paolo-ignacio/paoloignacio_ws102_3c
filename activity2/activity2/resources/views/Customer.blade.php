@@ -10,9 +10,9 @@
 
 
 
-<h1>Customer Id: <?php echo $cust_id ?></h1>
-<h1>Name: <?php echo $name ?></h1>
-<h1>Address: <?php echo $address ?></h1>
+<span>Customer Id: </span> <input type="text" readonly placeholder="<?php echo $cust_id ?>"> <br>
+<span>Name: </span> <input type="text" readonly placeholder="<?php echo $name ?>"> <br>
+<span>Address: </span> <input type="text" readonly placeholder="<?php echo $address ?>">
 
 
 

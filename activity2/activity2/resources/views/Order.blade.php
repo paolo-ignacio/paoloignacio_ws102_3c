@@ -9,10 +9,10 @@
 
     
 
-<h1>Customer Id: <?php echo $cust_id ?></h1>
-<h1>Name: <?php echo $name ?></h1>
-<h1>Order Number: <?php echo $order_no ?></h1>
-<h1>Date: <?php echo $date ?></h1>
+<span>Customer Id: </span> <input type="text" placeholder="<?php echo $cust_id ?>" readonly> <br>
+<span>Name: </span> <input type="text" placeholder="<?php echo $name ?>" readonly> <br>
+<span>Order Number: </span> <input type="text" placeholder="<?php echo $order_no ?>" readonly> <br>
+<span>Date: </span> <input type="text" placeholder="<?php echo $date ?>" readonly> 
 
 </body>
 </html>

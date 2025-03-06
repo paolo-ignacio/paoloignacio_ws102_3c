@@ -9,9 +9,9 @@
     
 
 
-<h1>Item Number: <?php echo $item_no ?></h1>
-<h1>Name: <?php echo $name ?></h1>
-<h1>Price: <?php echo $price ?></h1>
+<span>Item Number: </span> <input type="text" placeholder="<?php echo $item_no ?>" readonly> <br>
+<span>Name: </span> <input type="text" readonly placeholder="<?php echo $name ?>"> <br>
+<span>Price: </span> <input type="text" readonly placeholder="<?php echo $price ?>">
 
 
 

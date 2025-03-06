@@ -7,13 +7,13 @@
 </head>
 <body>
     
-<h1>Transaction Number: <?php echo $trans_no ?></h1>
-<h1>Order Number: <?php echo $order_no ?></h1>
-<h1>Item Id: <?php echo $item_id ?></h1>
-<h1>Name: <?php echo $name ?></h1>
-<h1>Price: <?php echo $price ?></h1>
+<span>Transaction Number: </span> <input type="text" placeholder="<?php echo $trans_no ?>" readonly> <br>
+<span>Order Number: </span> <input type="text" placeholder="<?php echo $order_no ?>" readonly> <br>
+<span>Item Id: </span> <input type="text" placeholder="<?php echo $item_id ?>" readonly> <br>
+<span>Name: </span> <input type="text" placeholder="<?php echo $name ?>" readonly> <br>
+<span>Price: </span> <input type="text" placeholder="<?php echo $price ?>" readonly> <br>
 
-<h1>Quantity: <?php echo $quantity ?></h1>
+<span>Quantity: </span> <input type="text" placeholder="<?php echo $quantity ?>" readonly> <br>
 
 
 </body>
