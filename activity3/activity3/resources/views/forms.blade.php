@@ -11,31 +11,6 @@
     @if(session('success'))
     <p style="color:green">{{session('success')}}</p>
     @endif
-<form action="" method="post">
-    <div>
-        <label for="firstName">First Name:</label>
-        <input type="text" name="firstName" value="{{firstName}}">
-        <span style="color:red"></span>
-    </div>
-    <div>
-        <label for="lastName">Last Name:</label>
-        <input type="text" name="lastName" value="{{lastName}}">
-        <span style="color:red"></span>
-    </div>
-    <div>
-        <input type="radio" id="male" name="sex" value="male">
-        <label for="male">Male</label>
-        <input type="radio" id="female" name="sex" value="female">
-        <label for="female">Female</label>
-    </div>
-    <div>
-        <label for="mobile">Mobile Phone:</label>
-        <input type="text" name="first_name" value="{{first_name}}">
-        <span style="color:red"></span>
-    </div>
-
-
-
     @if($errors->any())
     <ul>
         @foreach($errors->all() as $error)
@@ -47,7 +22,7 @@
     @csrf
         <div>
             <label for="firstName">First Name:</label>
-            <input type="text" name="firstName" value="{{ old('firstName') }}">
+            <input type="text" name="firstName" value="{{old('firstName')}}">
             @error('firstName') 
                 <span style="color:red">{{ $message }}</span> 
             @enderror
@@ -113,7 +88,6 @@
         </div>
         <button type="submit">Submit</button>
     </form>
-</form>
 
 </body>
 </html>
