@@ -122,16 +122,21 @@
 <body>
 
     <div class="sidebar">
+        <h2>Ticketing System</h2>
         <h2>Dashboard</h2>
+        
         <a href="/insertForm">Add Ticket</a>
-        <a href="/iforms">View Tickets</a>
+        <a href="/iforms">Pending Tickets</a>
+        <a href="/userAccepted">Accepted Tickets</a>
+        <a href="/userResolved">Resolved Tickets</a>
+        <a href="/userClosed">Closed Tickets</a>
         <a href="{{route('logout')}}" class="logout">Log out</a>
     </div>
     <div class="main-content">
 
         <div class="container">
 
-            <h1>All Submitted Tickets</h1>
+            <h1>Pending Tickets</h1>
             @if(session('success'))
         <p class="message success" style="color:green">{{session('success')}}</p>
             @elseif(session('error'))
@@ -139,12 +144,7 @@
             @endif
             <form method="GET" action="{{ url('/iforms') }}">
                 <input type="text" name="search" placeholder="Search by title" value="{{ request('search') }}">
-                <select name="status" onchange="this.form.submit()">
-                    <option value="all">All</option>
-                    <option value="open">Open</option>
-                    <option value="closed">Closed</option>
-                    <option value="reserved">Reserved</option>
-                </select>
+                
                 <button type="submit" class="btn">Search</button>
             </form>
             <table>
@@ -152,21 +152,17 @@
                     <th>Title</th>
                     <th>Category</th>
                     <th>Description</th>
-                    <th>Agent</th>
-                    <th>Priority</th>
                     <th>Status</th>
                     <th>Date Updated</th>
                     <th>Date Created</th>
                     <th>Actions</th>
-                    <th>View</th>
+     
                 </tr>
                 @foreach($tickets as $ticket)
                 <tr>
                     <td>{{$ticket->title}}</td>
                     <td>{{$ticket->category}}</td>
-                    <td>{{$ticket->description}}</td>
-                    <td>{{$ticket->agent_id}}</td>
-                    <td>{{$ticket->priority}}</td>
+                    <td>{{$ticket->description}}</td>  
                     <td>{{$ticket->status}}</td>
                     <td>{{$ticket->updated_at}}</td>
                     <td>{{$ticket->created_at}}</td>
@@ -174,7 +170,7 @@
                         <a href="/update/{{$ticket->id}}">Edit</a> | 
                         <a href="/delete/{{$ticket->id}}" style="color: red;">Delete</a>
                     </td>
-                    <td><a href="/view/{{$ticket->id}}" class="btn">View</a></td>
+               
                 </tr>
                 @endforeach
             </table>

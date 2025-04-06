@@ -108,7 +108,8 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Dashboard</h2>
+    <h2>Ticketing System</h2>
+    <h2>Dashboard</h2>
         
         <a href="/iforms1">View Tickets</a>
         <a href="{{route('logout')}}" class="logout">Log out</a>

@@ -30,9 +30,17 @@ Route::get('delete/{id}', [ticketController::class, 'removeTickets']);
 Route::get('delete1/{id}', [ticketController::class, 'removeTickets1']);
 Route::get('insertForm', [ticketController::class, 'createForm'])->name('insertForm');
 Route::get('iforms', [ticketController::class, 'iforms']);
+Route::get('userResolved', [ticketController::class, 'userResolved']);
+Route::get('userAccepted', [ticketController::class, 'userAccepted']);
+Route::get('userClosed', [ticketController::class, 'userClosed']);
+
+Route::get('agentResolved', [ticketController::class, 'agentResolved']);
+Route::get('agentAccepted', [ticketController::class, 'agentAccepted']);
+Route::get('agentClosed', [ticketController::class, 'agentClosed']);
 Route::get('iforms1', [ticketController::class, 'iforms1']);
 Route::post('insertForm', [ticketController::class, 'createTicket']);
-
+Route::get('accept/{id}', [ticketController::class, 'accept']);
+Route::post('accept/{id}', [ticketController::class, 'acceptInsert']);
 Route::get('view/{id}', [ticketController::class, 'view']);
 
 Route::get('view1/{id}', [ticketController::class, 'view1']);

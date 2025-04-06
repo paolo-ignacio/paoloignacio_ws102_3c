@@ -113,9 +113,13 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Dashboard</h2>
+    <h2>Ticketing System</h2>
+    <h2>Dashboard</h2>
         <a href="/insertForm">Add Ticket</a>
-        <a href="/iforms">View Tickets</a>
+        <a href="/iforms">Pending Tickets</a>
+        <a href="/userAccepted">Accepted Tickets</a>
+        <a href="/userResolved">Resolved Tickets</a>
+        <a href="/userClosed">Closed Tickets</a>
         <a href="{{route('logout')}}" class="logout">Log out</a>
     </div>
     <div class="main-content">
@@ -150,28 +154,7 @@
                     <span class="error">{{ $message }}</span>
                 @enderror
 
-                <label for="agent">Agent:</label>
-                <select id="agent" name="agent">
-                    <option value="">Select Agent</option>
-                    @foreach(session('agents', []) as $agent)
-                        <option value="{{ $agent->name }}">{{ $agent->name }}</option>
-                    @endforeach
-                </select>
-                @error('agent')
-                    <span class="error">{{ $message }}</span>
-                @enderror
-
-                <label for="priority">Priority:</label>
-                <select id="priority" name="priority">
-                    <option value="">Select Priority</option>
-                    <option value="critical">Critical</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                </select>
-                @error('priority')
-                    <span class="error">{{ $message }}</span>
-                @enderror
+                
 
                 <button type="submit" class="btn">Submit</button>
             </form>

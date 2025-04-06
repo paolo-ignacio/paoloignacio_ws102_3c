@@ -110,9 +110,13 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Dashboard</h2>
+    <h2>Ticketing System</h2>
+    <h2>Dashboard</h2>
         <a href="/insertForm">Add Ticket</a>
-        <a href="/iforms">View Tickets</a>
+        <a href="/iforms">Pending Tickets</a>
+        <a href="/userAccepted">Accepted Tickets</a>
+        <a href="/userResolved">Resolved Tickets</a>
+        <a href="/userClosed">Closed Tickets</a>
         <a href="{{route('logout')}}" class="logout">Log out</a>
     </div>
     <div class="main-content">
@@ -141,15 +145,7 @@
                 @error('category')<span class="error">{{$message}}</span>@enderror
                 
                
-                <label for="priority">Change priority:</label>
-                <select id="priority" name="priority">
-                    <option value="critical" {{ $ticket[0]->priority == 'critical' ? 'selected' : '' }}>Critical</option>
-                    <option value="high" {{ $ticket[0]->priority == 'high' ? 'selected' : '' }}>High</option>
-                    <option value="medium" {{ $ticket[0]->priority == 'medium' ? 'selected' : '' }}>Medium</option>
-                    <option value="low" {{ $ticket[0]->priority == 'low' ? 'selected' : '' }}>Low</option>
-                </select>
-                @error('priority')<span class="error">{{$message}}</span>@enderror
-                
+               
               
                 
                 <button type="submit">Submit</button>

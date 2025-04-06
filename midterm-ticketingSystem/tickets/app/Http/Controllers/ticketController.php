@@ -122,7 +122,7 @@ class ticketController extends Controller
     public function iforms(Request $request) {
         $id = session('user_id');
     $search = $request->input('search'); // Get search query
-    $status = $request->input('status'); // Get status filter
+ 
 
     $query = DB::table('ticketss')->where('user_id', $id);
    
@@ -130,42 +130,151 @@ class ticketController extends Controller
         $query->where('title', 'LIKE', "%$search%");
     }
 
-    if ($status && $status !== 'all') {
-        $query->where('status', $status);
+    $query->where('status', 'open')->orderBy('id', 'desc');;
+    $tickets = $query->paginate(4); 
+   
+    if ($tickets->isEmpty()) {
+        return view('tickets', compact('id', 'tickets', 'search'))->with('message', 'No data available here');
     }
 
+    return view('tickets', compact('id', 'tickets', 'search'));
+    }
+
+    public function userResolved(Request $request) {
+        $id = session('user_id');
+     $search = $request->input('search'); // Get search query
+ 
+
+    $query = DB::table('ticketss')->where('user_id', $id);
+   
+    if ($search) {
+        $query->where('title', 'LIKE', "%$search%");
+    }
+
+    $query->where('status', 'resolved');
     $tickets = $query->paginate(4); 
    
 
-    return view('tickets', compact('id', 'tickets', 'search', 'status'));
+    return view('userResolvedTickets', compact('id', 'tickets', 'search'));
     }
 
+    public function userAccepted(Request $request) {
+        $id = session('user_id');
+     $search = $request->input('search'); // Get search query
+ 
+
+    $query = DB::table('ticketss')->where('user_id', $id);
+   
+    if ($search) {
+        $query->where('title', 'LIKE', "%$search%");
+    }
+
+    $query->where('status', 'open');
+    $query->whereNotNull('agent_id'); // Ensure agent_id is not null
+    $query->where('agent_id', '<>', ''); // Ensure agent_id is not empty
+    $tickets = $query->paginate(4); 
+   
+
+    return view('userAcceptedTickets', compact('id', 'tickets', 'search'));
+    }
+
+    public function userClosed(Request $request) {
+        $id = session('user_id');
+     $search = $request->input('search'); // Get search query
+ 
+
+    $query = DB::table('ticketss')->where('user_id', $id);
+   
+    if ($search) {
+        $query->where('title', 'LIKE', "%$search%");
+    }
+
+    $query->where('status', 'closed');
+    $tickets = $query->paginate(4); 
+   
+
+    return view('userClosedTickets', compact('id', 'tickets', 'search'));
+    }
     public function iforms1(Request $request) {
         $id = session('agent_id'); // Get logged-in agent's ID
         $search = $request->input('search'); // Get search query
-        $status = $request->input('status'); // Get status filter
+        $agent_name = DB::select("SELECT * FROM agents where id = ?", [$id]);
+        // Get status filter
         
         // Start query: Join ticketss with assignedTickets to get tickets assigned to this agent
         $query = DB::table('ticketss')
             ->join('assignedTickets', 'ticketss.id', '=', 'assignedTickets.ticket_id')
             ->where('assignedTickets.agent_id', $id)
             ->select('ticketss.*'); // Select all ticket details
-    
-        // Apply search filter (search by ticket title)
+        $name =  DB::table('userss')
+            ->join('ticketss', 'userss.id', '=', 'ticketss.user_id')
+            ->where('agent_id',$agent_name[0]->name)
+            ->value('userss.name'); // Get only the name
+        // // Apply search filter (search by ticket title)
         if ($search) {
             $query->where('ticketss.title', 'LIKE', "%$search%");
         }
     
         // Apply status filter (only if it's not 'all')
-        if ($status && $status !== 'all') {
-            $query->where('ticketss.status', $status);
-        }
+        $query->where('status', 'open');
     
         $tickets = $query->paginate(4); // Paginate results
     
-        return view('agentTickets', compact('id', 'tickets', 'search', 'status'));
+        return view('agentTickets', compact('id', 'tickets', 'search','name'));
+    }
+
+    public function accept($id){
+       
+        $ticket = DB::select("SELECT * FROM TICKETSS WHERE id = ?", [$id]);
+        $users = DB::select("SELECT name FROM userss where id = ?", [$ticket[0]->user_id]);
+        $user = $users[0]; 
+        return View("Accept", compact('ticket', 'user'));
+    }
+
+
+    public function acceptInsert(Request $request, $id){
+        $validated = $request->validate([
+            'priority' => 'required|string'
+        ]);
+        $agent_name = "";
+        if(session('agent_id') == 1){
+            $agent_name = "Juan Dela Cruz";
+
+        } else if(session('agent_id') == 2){
+            $agent_name = "Maria Santos";
+        }
+         else if(session('agent_id') == 3){
+                $agent_name = "Carlos Reyes";
+         }
+        $priority = $request->input('priority');
+        DB::insert("UPDATE ticketss SET priority = ?, agent_id = ? where id = ?", [$priority, $agent_name, $id]);
+        return back()->with('success', 'Ticket accepted, you can now resolve the issue');
+
     }
     
+// where i stopped with agentTikcets.view to put the issued by
+// basically, I want to put who uploaded the tickets
+    public function agentAccepted(Request $request){
+        $agent_id = session('agent_id');
+        $search = $request->input('search'); // Get search query
+    
+        $agent_name = DB::select("SELECT * FROM agents where id = ?", [$agent_id]);
+       $query = DB::table('ticketss')->where('agent_id', $agent_name[0]->name);
+      
+      
+       if ($search) {
+           $query->where('title', 'LIKE', "%$search%");
+       }
+       $users = DB::select("SELECT name FROM userss where id = ?");
+       $user = $users[0]; 
+       $query->where('status', 'open');
+       $query->whereNotNull('agent_id'); // Ensure agent_id is not null
+       $query->where('agent_id', '<>', ''); // Ensure agent_id is not empty
+       $tickets = $query->paginate(4); 
+      
+   
+       return view('agentAccepted', compact('agent_id', 'tickets', 'search', 'name'));
+    }
 
     
 
@@ -175,32 +284,30 @@ class ticketController extends Controller
             'title'=> 'required|string|min:5|max:30',
             'description'=> 'required|string|max:60',
             'category'=> 'required',
-            'agent'=> 'required',
-            'priority'=> 'required',
-           
+          
 
         ]);
         $title = $request->input('title');
         $desc = $request->input('description');
         $cat = $request->input('category');
-        $agent = $request->input('agent');
+   
         $prio = $request->input('priority');
         $user_id = session('user_id');
         DB::insert("INSERT INTO ticketss(title, description, category, priority, status, user_id,agent_id, updated_at,created_at)
-         VALUES (?,?,?,?,?,?,?, ?,?)", [$title, $desc, $cat, $prio,'open', $user_id, $agent,now(), now() ]);
-        $agent_id = 0;
-        $idResult = DB::select("SELECT id FROM ticketss ORDER BY id DESC LIMIT 1");
-        if($agent == "Juan Dela Cruz"){
-            $agent_id = 1;
+         VALUES (?,?,?,?,?,?,?, ?,?)", [$title, $desc, $cat, "",'open', $user_id, "",now(), now() ]);
+        // $agent_id = 0;
+        // $idResult = DB::select("SELECT id FROM ticketss ORDER BY id DESC LIMIT 1");
+        // if($agent == "Juan Dela Cruz"){
+        //     $agent_id = 1;
             
-        } else if($agent == "Maria Santos"){
-            $agent_id = 2;
+        // } else if($agent == "Maria Santos"){
+        //     $agent_id = 2;
             
-        } else if($agent == "Carlos Reyes"){
-            $agent_id = 3;
-        }
+        // } else if($agent == "Carlos Reyes"){
+        //     $agent_id = 3;
+        // }
         
-        DB::insert("INSERT INTO assignedTickets (ticket_id, agent_id) VALUES (?, ?)", [$idResult[0]->id, $agent_id ]);
+        // DB::insert("INSERT INTO assignedTickets (ticket_id, agent_id) VALUES (?, ?)", [$idResult[0]->id, $agent_id ]);
         return back()->with('success', 'Ticket submitted, please wait to resolve issue');
     }
 

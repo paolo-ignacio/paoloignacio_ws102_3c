@@ -108,9 +108,14 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Dashboard</h2>
+    <h2>Ticketing System</h2>
+    <h2>Dashboard</h2>
         <a href="/insertForm">Add Ticket</a>
-        <a href="/iforms">View Tickets</a>
+        <a href="/insertForm">Add Ticket</a>
+        <a href="/iforms">Pending Tickets</a>
+        <a href="/userAccepted">Accepted Tickets</a>
+        <a href="/userResolved">Resolved Tickets</a>
+        <a href="/userClosed">Closed Tickets</a>
         <a href="{{route('logout')}}" class="logout">Log out</a>
     </div>
     <div class="main-content">
@@ -126,6 +131,7 @@
                 <div><strong>Priority:</strong> <span>{{$ticket[0]->priority}}</span></div>
                 <div><strong>Last Update:</strong> <span>{{$ticket[0]->updated_at}}</span></div>
                 <div><strong>Date Created:</strong> <span>{{$ticket[0]->created_at}}</span></div>
+                <div><strong>Comments:</strong> <span>Codad</span></div>
             </div>
             
         </div>
