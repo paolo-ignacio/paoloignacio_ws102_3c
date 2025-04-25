@@ -148,7 +148,7 @@
                 </select>
                 @error('category')<span class="error">{{$message}}</span>@enderror
                 <label for="priority">Priority:</label>
-                <select id="priority" name="priority">
+                <select id="priority" name="priority" >
                     <option value="" >Select priority</option>
                     <option value="critical" >Critical</option>
                     <option value="high" >High</option>

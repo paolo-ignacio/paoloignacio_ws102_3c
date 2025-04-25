@@ -123,6 +123,7 @@
 
     <div class="sidebar">
     <h2>Ticketing System</h2>
+    <h2>Agents</h2>
     <h2>Dashboard</h2>
 
     <a href="/iforms1">Pending Tickets</a>
@@ -152,10 +153,11 @@
                     <th>Category</th>
                     <th>Description</th>
                     <th>Status</th>
-                    <th>Issued by:</th>
+         
                     <th>Date Updated</th>
                     <th>Date Created</th>
                     <th>Actions</th>
+                    <th>View</th>
                    
                 </tr>
                 @foreach($tickets as $ticket)
@@ -164,12 +166,13 @@
                     <td>{{$ticket->category}}</td>
                     <td>{{$ticket->description}}</td>
                     <td>{{$ticket->status}}</td>
-                    <td>{{$name}}</td>
+
                     <td>{{$ticket->updated_at}}</td>
                     <td>{{$ticket->created_at}}</td>
                     <td>
                        <a href="/accept/{{$ticket->id}}">Accept</a>
                     </td>
+                    <td><a href="/viewAgent/{{$ticket->id}}" class="btn">View</a></td>
                   
                 </tr>
                 @endforeach

@@ -158,6 +158,7 @@
                     <th>Status</th>
                     <th>Date Resolved</th>
                     <th>Date Created</th>
+                    <th>Action</th>
                     <th>View</th>
                 </tr>
                 @foreach($tickets as $ticket)
@@ -173,7 +174,7 @@
                     <td>{{$ticket->status}}</td>
                     <td>{{$ticket->updated_at}}</td>
                     <td>{{$ticket->created_at}}</td>
-                   
+                    <td> <a href="/delete/{{$ticket->id}}" style="color: red;">Delete</a></td>
                     <td><a href="/view/{{$ticket->id}}" class="btn">View</a></td>
                 </tr>
                 @endforeach

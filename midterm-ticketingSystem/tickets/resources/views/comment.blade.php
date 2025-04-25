@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Ticket</title>
+    <title>Create Ticket</title>
     <style>
-        * {
+             * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -124,22 +124,22 @@
     </div>
     <div class="main-content">
         <div class="container">
-            <h1>Edit Ticket</h1>
+        <h1>Add Comment Ticket</h1>
             @if(session('success'))
                 <p style="color: green; text-align: center;">{{ session('success') }}</p>
             @endif
-            <form action="/update1/{{$ticket->id}}" method="post">
+            <form action="/comment/{{$ticket->id}}/{{$ticket->user_id}}" method="post">
                 @csrf
                 <label for="title">Title:</label>
-                <input type="text" name="title" value="{{$ticket->title}}">
+                <input type="text" name="title" disabled value="{{$ticket->title}}">
                 @error('title')<span class="error">{{$message}}</span>@enderror
                 
                 <label for="description">Description:</label>
-                <textarea id="description" name="description" rows="4">{{$ticket->description}}</textarea>
+                <textarea id="description" disabled name="description" rows="4">{{$ticket->description}}</textarea>
                 @error('description')<span class="error">{{$message}}</span>@enderror
                 
-                <label for="category">Change category:</label>
-                <select id="category" name="category">
+                <label for="category">Category:</label>
+                <select id="category" name="category" disabled>
                     <option value="support" {{ $ticket->category == 'support' ? 'selected' : '' }}>Support</option>
                     <option value="billing" {{ $ticket->category == 'billing' ? 'selected' : '' }}>Billing</option>
                     <option value="technical" {{ $ticket->category == 'technical' ? 'selected' : '' }}>Technical</option>
@@ -148,22 +148,27 @@
                 @error('category')<span class="error">{{$message}}</span>@enderror
                 
                 
-                <label for="priority">Change priority:</label>
-                <select id="priority" name="priority">
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority" disabled>
                     <option value="critical" {{ $ticket->priority == 'critical' ? 'selected' : '' }}>Critical</option>
                     <option value="high" {{ $ticket->priority == 'high' ? 'selected' : '' }}>High</option>
                     <option value="medium" {{ $ticket->priority == 'medium' ? 'selected' : '' }}>Medium</option>
                     <option value="low" {{ $ticket->priority == 'low' ? 'selected' : '' }}>Low</option>
                 </select>
                 @error('priority')<span class="error">{{$message}}</span>@enderror
-                <label for="status">Change status:</label>
-                <select id="status" name="status">
+                <label for="status">Status:</label>
+                <select id="status" name="status" disabled>
                     <option value="open" {{ $ticket->status == 'open' ? 'selected' : '' }}>Open</option>
-                   
+                    <option value="closed" {{ $ticket->status == 'close' ? 'selected' : '' }}>Close</option>
                     <option value="resolved" {{ $ticket->status == 'resolve' ? 'selected' : '' }}>Resolve</option>
                 </select>
                 @error('status')<span class="error">{{$message}}</span>@enderror
                 
+                 
+                <label for="comment">Comment:</label>
+                <textarea id="comment" name="comment" rows="4"></textarea>
+                @error('comment')<span class="error">{{$message}}</span>@enderror
+
                 <button type="submit">Submit</button>
             </form>
         </div>

@@ -58,7 +58,12 @@ class ticketController extends Controller
                 session(['user_id' => $user->id]);
                 
             
-                $tickets = DB::table('ticketss')->where('user_id', $id)->paginate(4);
+                $tickets = DB::table('ticketss')
+                ->where('user_id', $id)
+                ->where('status', 'open')
+                ->where('agent_id' ,'')
+                ->orderBy('id', 'desc')
+                ->paginate(4);
     
                 $agents = DB::select("SELECT name FROM agents");
                 session(['agents' => $agents]);
@@ -82,13 +87,15 @@ class ticketController extends Controller
     
             if ($password == $user->password) {
                 $id = $user->id; // Logged-in agent's ID
-                session(['agent_id' => $id]); // Store agent ID in session
+                $agent_name = $user->name;
+                session(['agent_id' => $id]);
+
                 
                 // Fetch tickets assigned to this agent
                 $tickets = DB::table('ticketss')
-                    ->join('assignedTickets', 'ticketss.id', '=', 'assignedTickets.ticket_id')
-                    ->where('assignedTickets.agent_id', $id)
-                    ->select('ticketss.*') // Get all columns from ticketss
+                    ->where('status', 'open')
+                    ->where('agent_id' ,'')
+                    ->orderBy('id', 'desc') // Get all columns from ticketss
                     ->paginate(4); // Paginate results
                 
                 
@@ -102,12 +109,20 @@ class ticketController extends Controller
     public function view($id){
         $ticket = DB::select('select * FROM ticketss WHERE  id = ?',[$id]);
         $name = DB::select("select name from userss where id= ?", [$ticket[0]->user_id]);
-        return view('view', compact('ticket', 'name'));
+        $comment = !empty($comments) ? $comments[0] : null;
+        return view('view', compact('ticket', 'name', 'comment'));
+    }
+    public function viewAgent($id){
+        $ticket = DB::select('select * FROM ticketss WHERE  id = ?',[$id]);
+        $name = DB::select("select name from userss where id= ?", [$ticket[0]->user_id]);
+        return view('veiwAgent', compact('ticket', 'name'));
     }
     public function view1($id){
         $ticket = DB::select('select * FROM ticketss WHERE  id = ?',[$id]);
         $name = DB::select("select name from userss where id= ?", [$ticket[0]->user_id]);
-        return view('viewAgentTickets', compact('ticket', 'name'));
+        $comments = DB::select("SELECT * FROM comment where ticket_id = ?", [$id]);
+        $comment = !empty($comments) ? $comments[0] : null;
+        return view('viewAgentTickets', compact('ticket', 'name', 'comment'));
     }
 
     
@@ -130,7 +145,9 @@ class ticketController extends Controller
         $query->where('title', 'LIKE', "%$search%");
     }
 
-    $query->where('status', 'open')->orderBy('id', 'desc');;
+    $query->where('status', 'open')
+    ->where('agent_id', '')
+    ->orderBy('id', 'desc');
     $tickets = $query->paginate(4); 
    
     if ($tickets->isEmpty()) {
@@ -138,24 +155,6 @@ class ticketController extends Controller
     }
 
     return view('tickets', compact('id', 'tickets', 'search'));
-    }
-
-    public function userResolved(Request $request) {
-        $id = session('user_id');
-     $search = $request->input('search'); // Get search query
- 
-
-    $query = DB::table('ticketss')->where('user_id', $id);
-   
-    if ($search) {
-        $query->where('title', 'LIKE', "%$search%");
-    }
-
-    $query->where('status', 'resolved');
-    $tickets = $query->paginate(4); 
-   
-
-    return view('userResolvedTickets', compact('id', 'tickets', 'search'));
     }
 
     public function userAccepted(Request $request) {
@@ -169,7 +168,7 @@ class ticketController extends Controller
         $query->where('title', 'LIKE', "%$search%");
     }
 
-    $query->where('status', 'open');
+    $query->where('status', 'open')->orderBy('id', 'desc');;;
     $query->whereNotNull('agent_id'); // Ensure agent_id is not null
     $query->where('agent_id', '<>', ''); // Ensure agent_id is not empty
     $tickets = $query->paginate(4); 
@@ -177,6 +176,24 @@ class ticketController extends Controller
 
     return view('userAcceptedTickets', compact('id', 'tickets', 'search'));
     }
+    public function userResolved(Request $request) {
+        $id = session('user_id');
+     $search = $request->input('search'); // Get search query
+ 
+
+    $query = DB::table('ticketss')->where('user_id', $id);
+   
+    if ($search) {
+        $query->where('title', 'LIKE', "%$search%");
+    }
+
+    $query->where('status', 'resolved')->orderBy('id', 'desc');;;
+    $tickets = $query->paginate(4); 
+   
+
+    return view('userResolvedTickets', compact('id', 'tickets', 'search'));
+    }
+
 
     public function userClosed(Request $request) {
         $id = session('user_id');
@@ -189,7 +206,7 @@ class ticketController extends Controller
         $query->where('title', 'LIKE', "%$search%");
     }
 
-    $query->where('status', 'closed');
+    $query->where('status', 'closed')->orderBy('id', 'desc');;;
     $tickets = $query->paginate(4); 
    
 
@@ -197,36 +214,33 @@ class ticketController extends Controller
     }
     public function iforms1(Request $request) {
         $id = session('agent_id'); // Get logged-in agent's ID
+
         $search = $request->input('search'); // Get search query
         $agent_name = DB::select("SELECT * FROM agents where id = ?", [$id]);
         // Get status filter
         
         // Start query: Join ticketss with assignedTickets to get tickets assigned to this agent
-        $query = DB::table('ticketss')
-            ->join('assignedTickets', 'ticketss.id', '=', 'assignedTickets.ticket_id')
-            ->where('assignedTickets.agent_id', $id)
-            ->select('ticketss.*'); // Select all ticket details
-        $name =  DB::table('userss')
-            ->join('ticketss', 'userss.id', '=', 'ticketss.user_id')
-            ->where('agent_id',$agent_name[0]->name)
-            ->value('userss.name'); // Get only the name
+
+        $query = DB::table('ticketss');
+   
+  
         // // Apply search filter (search by ticket title)
         if ($search) {
             $query->where('ticketss.title', 'LIKE', "%$search%");
         }
     
         // Apply status filter (only if it's not 'all')
-        $query->where('status', 'open');
+        $query->where('status', 'open')->where('ticketss.agent_id' ,'')->orderBy('id', 'desc');
     
         $tickets = $query->paginate(4); // Paginate results
     
-        return view('agentTickets', compact('id', 'tickets', 'search','name'));
+        return view('agentTickets', compact('id', 'tickets', 'search'));
     }
 
     public function accept($id){
        
         $ticket = DB::select("SELECT * FROM TICKETSS WHERE id = ?", [$id]);
-        $users = DB::select("SELECT name FROM userss where id = ?", [$ticket[0]->user_id]);
+        $users = DB::select("SELECT * FROM userss where id = ?", [$ticket[0]->user_id]);
         $user = $users[0]; 
         return View("Accept", compact('ticket', 'user'));
     }
@@ -246,8 +260,10 @@ class ticketController extends Controller
          else if(session('agent_id') == 3){
                 $agent_name = "Carlos Reyes";
          }
+         $agent_id = session('agent_id');
         $priority = $request->input('priority');
         DB::insert("UPDATE ticketss SET priority = ?, agent_id = ? where id = ?", [$priority, $agent_name, $id]);
+        DB::insert("INSERT INTO assignedTickets(ticket_id,agent_id) VALUES(?,?)",[$id, $agent_id]);
         return back()->with('success', 'Ticket accepted, you can now resolve the issue');
 
     }
@@ -265,17 +281,63 @@ class ticketController extends Controller
        if ($search) {
            $query->where('title', 'LIKE', "%$search%");
        }
-       $users = DB::select("SELECT name FROM userss where id = ?");
-       $user = $users[0]; 
-       $query->where('status', 'open');
+       $users = DB::select("SELECT * FROM userss");
+       $user = $users[0]->name; 
+       $query->where('status', 'open')->orderBy('id', 'desc');;;
        $query->whereNotNull('agent_id'); // Ensure agent_id is not null
        $query->where('agent_id', '<>', ''); // Ensure agent_id is not empty
        $tickets = $query->paginate(4); 
       
    
-       return view('agentAccepted', compact('agent_id', 'tickets', 'search', 'name'));
+       return view('agentAccepted', compact('agent_id', 'tickets', 'search'));
     }
 
+
+    public function agentResolved(Request $request){
+        $agent_id = session('agent_id');
+        $search = $request->input('search'); // Get search query
+    
+        $agent_name = DB::select("SELECT * FROM agents where id = ?", [$agent_id]);
+       $query = DB::table('ticketss')->where('agent_id', $agent_name[0]->name);
+      
+      
+       if ($search) {
+           $query->where('title', 'LIKE', "%$search%");
+       }
+       $users = DB::select("SELECT * FROM userss");
+       $user = $users[0]->name; 
+       $query->where('status', 'resolved')->orderBy('id', 'desc');;;
+       $query->whereNotNull('agent_id'); // Ensure agent_id is not null
+       $query->where('agent_id', '<>', ''); // Ensure agent_id is not empty
+       $tickets = $query->paginate(4); 
+      
+   
+       return view('agentResolved', compact('agent_id', 'tickets', 'search'));
+    }
+
+
+    public function agentClosed(Request $request){
+        $agent_id = session('agent_id');
+        $search = $request->input('search'); // Get search query
+    
+        $agent_name = DB::select("SELECT * FROM agents where id = ?", [$agent_id]);
+       $query = DB::table('ticketss')->where('agent_id', $agent_name[0]->name);
+      
+      
+       if ($search) {
+           $query->where('title', 'LIKE', "%$search%");
+       }
+       $users = DB::select("SELECT * FROM userss");
+       $user = $users[0]->name; 
+       $query->where('status', 'closed')->orderBy('id', 'desc');;;
+       $query->whereNotNull('agent_id'); // Ensure agent_id is not null
+       $query->where('agent_id', '<>', ''); // Ensure agent_id is not empty
+       $tickets = $query->paginate(4); 
+      
+   
+       return view('agentClosed', compact('agent_id', 'tickets', 'search'));
+    }
+    
     
 
     public function createTicket(Request $request){
@@ -322,21 +384,19 @@ class ticketController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|min:5|max:30',
             'description' => 'required|string|max:60',
-            
             'category' => 'required',
-            'priority' => 'required',
         ]);
     
         $title = $request->input('title');
         $desc = $request->input('description');
         $cat = $request->input('category');
-        $prio = $request->input('priority');
+
         $id = session('user_id');
         
  
         $agents = session('agents');
-        DB::update('UPDATE ticketss SET title = ?, description = ?, category = ?, priority = ?, updated_at = ? WHERE id = ?', 
-        [$title, $desc, $cat, $prio, now(), $tid]);
+        DB::update('UPDATE ticketss SET title = ?, description = ?, category = ?, updated_at = ? WHERE id = ?', 
+        [$title, $desc, $cat , now(), $tid]);
     
         return redirect('/iforms')->with('success', 'Ticket updated successfully.');
     }
@@ -354,9 +414,9 @@ class ticketController extends Controller
     
         // If the ticket is not found (not assigned to this agent), show an error
         if (!$ticket) {
-            return redirect('/iforms1')->with('error', 'You are not authorized to view this ticket.');
+            return redirect('/agentAccepted')->with('error', 'You are not authorized to view this ticket.');
         }
-    
+
         return view('agentEdit', compact('id', 'ticket'));
     }
     public function updateTickets1(Request $request, $tid) {
@@ -380,7 +440,7 @@ class ticketController extends Controller
         [$title, $desc, $cat, $prio, $status, now(), $tid]);
     
     
-    return redirect('/iforms1')->with('success', 'Ticket updated successfully.');
+    return redirect('/agentAccepted')->with('success', 'Ticket updated successfully.');
     }
     public function removeTickets($id){
 
@@ -412,4 +472,96 @@ class ticketController extends Controller
         return back()->with('success', 'Ticket deleted successfully.');
     }
     
+    public function comment($id){
+        $tickets = DB::select("SELECT * FROM ticketss WHERE id = ?", [$id]);
+        $ticket = $tickets[0];
+        return view("comment", compact("ticket"));
+    }
+
+    public function commentInsert(Request $request, $id, $user_id){
+        $validate = $request->validate([
+            'comment' => 'required'
+        ]);
+        DB::insert("INSERT INTO comment(ticket_id,user_id,message,created_at) VALUES (?,?,?,?)", [$id, $user_id, $request->comment, now()]);
+        return back()->with('success', 'Comment added successfully');
+    }
+
+
+    public function admin(){
+        return view('adminLogin');
+    }
+
+
+    public function adminLogin(Request $request){
+        $validated = $request->validate([
+            'email' => 'required',
+            'password' => 'required'
+        ]);
+
+
+        if($request->email == 'admin@gmail.com' && $request->password == 'admin'){
+
+
+            
+            return redirect('adminResolvedAll');
+        }
+
+        return back()->with('success', 'Login Successfully');
+    }
+
+
+
+    public function adminR(){
+       $query = DB::table('ticketss')->where('status', 'resolved')->orderBy('id', 'desc');
+       $tickets = $query->paginate(4); 
+       return view('adminDashboard', compact('tickets'));
+        
+    }
+    public function adminResolved(Request $request){
+
+        
+        $search = $request->input('search'); 
+    
+       $query = DB::table('ticketss');
+      
+      
+       if ($search) {
+           $query->where('title', 'LIKE', "%$search%");
+       }
+
+       $query->where('status', 'resolved')->orderBy('id', 'desc');;;
+       $tickets = $query->paginate(4); 
+       return view('adminDashboard', compact('tickets'));
+    }
+
+    public function adminCloseButton($id){
+        DB::update('UPDATE ticketss SET status = ? WHERE id = ?', ['closed', $id]);
+
+
+        return back()->with('success' ,'Ticket closed successfully');
+    }
+
+
+    public function adminC(){
+        $query = DB::table('ticketss')->where('status', 'closed')->orderBy('id', 'desc');
+        $tickets = $query->paginate(4); 
+        return view('admin', compact('tickets'));
+         
+     }
+     public function adminClosed(Request $request){
+ 
+         
+         $search = $request->input('search'); 
+     
+        $query = DB::table('ticketss');
+       
+       
+        if ($search) {
+            $query->where('title', 'LIKE', "%$search%");
+        }
+ 
+        $query->where('status', 'resolved')->orderBy('id', 'desc');;;
+        $tickets = $query->paginate(4); 
+        return view('admin', compact('tickets'));
+     }
 }

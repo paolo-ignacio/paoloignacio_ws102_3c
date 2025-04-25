@@ -123,14 +123,13 @@
 
     <div class="sidebar">
         <h2>Ticketing System</h2>
+        <h2>Admin</h2>
         <h2>Dashboard</h2>
         
 
-        <a href="/insertForm">Add Ticket</a>
-        <a href="/iforms">Pending Tickets</a>
-        <a href="/userAccepted">Accepted Tickets</a>
-        <a href="/userResolved">Resolved Tickets</a>
-        <a href="/userClosed">Closed Tickets</a>
+      
+        <a href="/adminResolvedAll">Resolved Tickets</a>
+        <a href="/adminClosedAll">Closed Tickets</a>
         <a href="{{route('logout')}}" class="logout">Log out</a>
     </div>
     <div class="main-content">
@@ -143,7 +142,7 @@
             @elseif(session('error'))
                 <p class="message error" style="color:red">{{session('error')}}</p>
             @endif
-            <form method="GET" action="{{ url('/userClosed') }}">
+            <form method="GET" action="{{ url('/adminClosed') }}">
                 <input type="text" name="search" placeholder="Search by title" value="{{ request('search') }}">
                 
                 <button type="submit" class="btn">Search</button>
@@ -158,14 +157,10 @@
                     <th>Status</th>
                     <th>Date Closed</th>
                     <th>Date Created</th>
-                    <th>Action</th>
-                    <th>View</th>
+
                 </tr>
                 @foreach($tickets as $ticket)
                 <tr>
-                @if(session('message'))
-                    <p>{{ session('message') }}</p>
-                @endif
                     <td>{{$ticket->title}}</td>
                     <td>{{$ticket->category}}</td>
                     <td>{{$ticket->description}}</td>
@@ -173,10 +168,8 @@
                     <td>{{$ticket->priority}}</td>
                     <td>{{$ticket->status}}</td>
                     <td>{{$ticket->updated_at}}</td>
-       
                     <td>{{$ticket->created_at}}</td>
-                    <td> <a href="/delete/{{$ticket->id}}" style="color: red;">Delete</a></td>
-                    <td><a href="/view/{{$ticket->id}}" class="btn">View</a></td>
+       
                 </tr>
                 @endforeach
             </table>

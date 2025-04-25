@@ -126,14 +126,9 @@
                 <div><strong>Description:</strong> <span>{{$ticket[0]->description}}</span></div>
                 <div><strong>Category:</strong> <span>{{$ticket[0]->category}}</span></div>
                 <div><strong>Status:</strong> <span>{{$ticket[0]->status}}</span></div>
-                <div><strong>Agent:</strong> <span>{{$ticket[0]->agent_id}}</span></div>
-                <div><strong>Priority:</strong> <span>{{$ticket[0]->priority}}</span></div>
+        
                 <div><strong>Last Update:</strong> <span>{{$ticket[0]->updated_at}}</span></div>
                 <div><strong>Date Created:</strong> <span>{{$ticket[0]->created_at}}</span></div>
-                <div>
-                    <strong>Comment:</strong> 
-                    <span>{{ optional($comment)->message ?? 'No comments yet.' }}</span>
-                </div>
             </div>
             
         </div>

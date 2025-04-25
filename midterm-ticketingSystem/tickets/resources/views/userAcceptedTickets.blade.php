@@ -137,7 +137,7 @@
 
         <div class="container">
 
-            <h1>Resolved Tickets</h1>
+            <h1>Accepted Tickets</h1>
             @if(session('success'))
         <p class="message success" style="color:green">{{session('success')}}</p>
             @elseif(session('error'))
